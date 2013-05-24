@@ -10,26 +10,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.camunda.bpm.engine.rest.exception;
+package org.camunda.bpm.engine.rest.http;
 
-import javax.ws.rs.core.Response.Status;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import javax.ws.rs.HttpMethod;
 
 /**
- * This exception is used for any kind of errors that occur due to malformed
- * parameters in a Http query.
- * 
  * @author Thorben Lindhauer
- * 
  */
-public class InvalidRequestException extends RestException {
-
-  private static final long serialVersionUID = 1L;
-  
-  public InvalidRequestException(Status status, String message) {
-    super(status, message);
-  }
-  
-  public InvalidRequestException(Status status, Exception cause, String message) {
-    super(status, cause, message);
-  }
+@Target({ElementType.METHOD})
+@Retention(RetentionPolicy.RUNTIME)
+@HttpMethod("PATCH")
+public @interface PATCH {
 }

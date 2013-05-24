@@ -19,23 +19,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response.Status;
 
+import org.camunda.bpm.engine.ProcessEngine;
+import org.camunda.bpm.engine.query.Query;
 import org.camunda.bpm.engine.rest.dto.converter.StringToTypeConverter;
 import org.camunda.bpm.engine.rest.exception.InvalidRequestException;
 import org.camunda.bpm.engine.rest.exception.RestException;
 
 /**
- * Defines common query sorting options and validation.
+ * Defines common query operations, such as sorting options and validation.
  * Also allows to access its setter methods based on {@link CamundaQueryParam} annotations which is
  * used for processing Http query parameters.
  * 
  * @author Thorben Lindhauer
  *
  */
-public abstract class SortableParameterizedQueryDto {
+public abstract class AbstractQueryDto<T extends Query<?, ?>> {
   
   protected static final String SORT_ORDER_ASC_VALUE = "asc";
   protected static final String SORT_ORDER_DESC_VALUE = "desc";
@@ -51,28 +52,22 @@ public abstract class SortableParameterizedQueryDto {
   protected String sortOrder;
   
   // required for populating via jackson
-  public SortableParameterizedQueryDto() {
+  public AbstractQueryDto() {
     
   }
   
-  public SortableParameterizedQueryDto(MultivaluedMap<String, String> queryParameters) {
+  public AbstractQueryDto(MultivaluedMap<String, String> queryParameters) {
     for (Entry<String, List<String>> param : queryParameters.entrySet()) {
       String key = param.getKey();
       String value = param.getValue().iterator().next();
-      try {
-        this.setValueBasedOnAnnotation(key, value);
-      } catch (RestException e) {
-        throw new WebApplicationException(e, Status.INTERNAL_SERVER_ERROR);
-      } catch (InvalidRequestException e) {
-        throw new WebApplicationException(e, Status.BAD_REQUEST);
-      }
+      this.setValueBasedOnAnnotation(key, value);
     }
   }
   
   @CamundaQueryParam("sortBy")
   public void setSortBy(String sortBy) {
     if (!isValidSortByValue(sortBy)) {
-      throw new InvalidRequestException("sortBy parameter has invalid value.");
+      throw new InvalidRequestException(Status.BAD_REQUEST, "sortBy parameter has invalid value: " + sortBy);
     }
     this.sortBy = sortBy;
   }
@@ -80,7 +75,7 @@ public abstract class SortableParameterizedQueryDto {
   @CamundaQueryParam("sortOrder")
   public void setSortOrder(String sortOrder) {
     if (!VALID_SORT_ORDER_VALUES.contains(sortOrder)) {
-      throw new InvalidRequestException("sortOrder parameter has invalid value.");
+      throw new InvalidRequestException(Status.BAD_REQUEST, "sortOrder parameter has invalid value: " + sortOrder);
     }
     this.sortOrder = sortOrder;
   }
@@ -111,13 +106,13 @@ public abstract class SortableParameterizedQueryDto {
         Object convertedValue = converter.convertQueryParameterToType(value);
         method.invoke(this, convertedValue);
       } catch (InstantiationException e) {
-        throw new RestException("Server error.");
+        throw new RestException(Status.INTERNAL_SERVER_ERROR, e, "Server error.");
       } catch (IllegalAccessException e) {
-        throw new RestException("Server error.");
+        throw new RestException(Status.INTERNAL_SERVER_ERROR, e, "Server error.");
       } catch (IllegalArgumentException e) {
-        throw new InvalidRequestException("Cannot set parameter.");
+        throw new InvalidRequestException(Status.BAD_REQUEST, e, "Cannot set query parameter '" + key + "' to value '" + value + "'");
       } catch (InvocationTargetException e) {
-        throw new InvalidRequestException("Cannot set parameter.");
+        throw new InvalidRequestException(Status.BAD_REQUEST, e, "Cannot set query parameter '" + key + "' to value '" + value + "'");
       }
     }
   }
@@ -154,4 +149,23 @@ public abstract class SortableParameterizedQueryDto {
     }
     return null;
   }
+  
+  public T toQuery(ProcessEngine engine) {
+    T query = createNewQuery(engine);
+    applyFilters(query);
+    
+    if (!sortOptionsValid()) {
+      throw new InvalidRequestException(Status.BAD_REQUEST, "Only a single sorting parameter specified. sortBy and sortOrder required");
+    }
+    
+    applySortingOptions(query);
+    
+    return query;
+  }
+
+  protected abstract T createNewQuery(ProcessEngine engine);
+  
+  protected abstract void applyFilters(T query);
+  
+  protected abstract void applySortingOptions(T query);
 }

@@ -10,26 +10,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.camunda.bpm.engine.rest.exception;
+package org.camunda.bpm.engine.rest.dto;
 
-import javax.ws.rs.core.Response.Status;
+import java.util.List;
+
+import org.camunda.bpm.engine.rest.dto.runtime.VariableValueDto;
 
 /**
- * This exception is used for any kind of errors that occur due to malformed
- * parameters in a Http query.
- * 
  * @author Thorben Lindhauer
- * 
  */
-public class InvalidRequestException extends RestException {
+public class PatchVariablesDto {
 
-  private static final long serialVersionUID = 1L;
+  private List<VariableValueDto> modifications;
+  private List<String> deletions;
   
-  public InvalidRequestException(Status status, String message) {
-    super(status, message);
+  public List<VariableValueDto> getModifications() {
+    return modifications;
   }
-  
-  public InvalidRequestException(Status status, Exception cause, String message) {
-    super(status, cause, message);
+  public void setModifications(List<VariableValueDto> modifications) {
+    this.modifications = modifications;
+  }
+  public List<String> getDeletions() {
+    return deletions;
+  }
+  public void setDeletions(List<String> deletions) {
+    this.deletions = deletions;
   }
 }
