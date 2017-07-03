@@ -14,12 +14,12 @@
 package org.camunda.bpm.engine.rest.dto.history;
 
 import java.io.Serializable;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
-import org.camunda.bpm.engine.history.HistoricFinishedDecisionInstanceReportResult;
+import org.camunda.bpm.engine.history.CleanableHistoricDecisionInstanceReportResult;
 
-public class HistoricFinishedDecisionInstanceReportDto implements Serializable {
+public class CleanableHistoricDecisionInstanceReportResultDto implements Serializable {
 
   private static final long serialVersionUID = 1L;
 
@@ -87,10 +87,10 @@ public class HistoricFinishedDecisionInstanceReportDto implements Serializable {
     this.cleanableDecisionInstanceCount = cleanableDecisionInstanceCount;
   }
 
-  public static List<HistoricFinishedDecisionInstanceReportDto> convert(List<HistoricFinishedDecisionInstanceReportResult> reportResult) {
-    List<HistoricFinishedDecisionInstanceReportDto> dtos = new LinkedList<HistoricFinishedDecisionInstanceReportDto>();
-    for (HistoricFinishedDecisionInstanceReportResult current : reportResult) {
-      HistoricFinishedDecisionInstanceReportDto dto = new HistoricFinishedDecisionInstanceReportDto();
+  public static List<CleanableHistoricDecisionInstanceReportResultDto> convert(List<CleanableHistoricDecisionInstanceReportResult> reportResult) {
+    List<CleanableHistoricDecisionInstanceReportResultDto> dtos = new ArrayList<CleanableHistoricDecisionInstanceReportResultDto>();
+    for (CleanableHistoricDecisionInstanceReportResult current : reportResult) {
+      CleanableHistoricDecisionInstanceReportResultDto dto = new CleanableHistoricDecisionInstanceReportResultDto();
       dto.setDecisionDefinitionId(current.getDecisionDefinitionId());
       dto.setDecisionDefinitionKey(current.getDecisionDefinitionKey());
       dto.setDecisionDefinitionName(current.getDecisionDefinitionName());
