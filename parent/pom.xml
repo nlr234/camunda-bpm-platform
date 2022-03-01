@@ -49,7 +49,7 @@
     <version.wildfly>23.0.2.Final</version.wildfly>
     <version.wildfly.core>15.0.1.Final</version.wildfly.core>
 
-    <version.tomcat>9.0.52</version.tomcat>
+    <version.tomcat>10.0.17</version.tomcat>
 
     <version.arquillian>1.1.10.Final</version.arquillian>
     <version.shrinkwrap.resolvers>2.2.2</version.shrinkwrap.resolvers>
